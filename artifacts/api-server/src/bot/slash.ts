@@ -167,7 +167,11 @@ const slashCommands = [
         .setName("set")
         .setDescription("React to every message in a channel.")
         .addChannelOption((o) => o.setName("channel").setDescription("Text channel").addChannelTypes(ChannelType.GuildText, ChannelType.GuildAnnouncement).setRequired(true))
-        .addStringOption((o) => o.setName("emoji").setDescription("Custom emoji from this server").setRequired(true)),
+        .addStringOption((o) => o.setName("emoji").setDescription("Emoji to react with").setRequired(true))
+        .addStringOption((o) => o.setName("trigger").setDescription("Which messages should receive the reaction").addChoices(
+          { name: "All messages", value: "all" },
+          { name: "Level-up announcements", value: "levelup" },
+        )),
     )
     .addSubcommand((sub) =>
       sub
@@ -268,7 +272,8 @@ function automationCommandContent(
     interaction.options.getString("emoji") ??
     interaction.options.getString("message") ??
     "";
-  return `!${command} ${action} ${channelText} ${value}`.trim();
+  const trigger = command === "autoreact" ? interaction.options.getString("trigger") ?? "" : "";
+  return `!${command} ${action} ${channelText} ${value} ${trigger}`.trim();
 }
 
 function buildLegacyContent(interaction: ChatInputCommandInteraction): string {

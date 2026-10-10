@@ -109,7 +109,7 @@ function pageAutomation(): EmbedBuilder {
   return helpPage("📡 Automation")
     .setDescription("Configure these features with **Manage Server** permission.")
     .addFields(
-      { name: "`!autoreact set #channel <emoji>` • `/autoreact set`", value: "React to every new message with one Unicode emoji, such as `👍`, or a custom emoji from this server, such as `<:sparkle:id>`." },
+      { name: "`!autoreact set #channel <emoji> [all|levelup]` • `/autoreact set`", value: "Choose whether an emoji reacts to every new message (`all`, the default) or only level-up announcements (`levelup`). Supports Unicode and server custom emojis." },
       { name: "`!autoreact status #channel` • `/autoreact status`", value: "Show the active reaction for a channel." },
       { name: "`!autoreact remove #channel` • `/autoreact remove`", value: "Turn off auto-react for a channel." },
       { name: "`!sticky set #channel <message>` • `/sticky set`", value: "Keep one branded message at the bottom of a channel. It moves after new messages." },

@@ -21,6 +21,7 @@ import {
 } from "@workspace/db";
 import { logger } from "../lib/logger";
 import { premiumColors } from "./presentation";
+import { reactToLevelUpMessage } from "./automation";
 
 const XP_PER_LEVEL = 100;
 const CHAT_XP_COOLDOWN_MS = 60_000;
@@ -37,7 +38,7 @@ interface AwardResult {
   levelsGained: number;
 }
 
-type LevelUpSender = (payload: MessageCreateOptions) => Promise<unknown>;
+type LevelUpSender = (payload: MessageCreateOptions) => Promise<Message>;
 
 interface ExperienceSettings {
   levelUpChannelId: string | null;
@@ -259,10 +260,11 @@ async function announceLevelUp(
   }
   const embed = buildLevelUpEmbed(member, result, settings);
   if (preferences?.serverNotifications ?? true) {
-    await send({
+    const levelUpMessage = await send({
       embeds: [embed],
       allowedMentions: { users: [member.id] },
     });
+    await reactToLevelUpMessage(levelUpMessage);
   }
   if (preferences?.dmNotifications) {
     await member.send({
