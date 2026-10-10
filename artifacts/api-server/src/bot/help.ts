@@ -77,6 +77,7 @@ function page3(): EmbedBuilder {
       { name: "`!noprefix @role` • `/noprefix`", value: "Let a role use commands without `!`; use `remove` to disable it.\n*(Manage Server)*" },
       { name: "`!socialrole set @role` • `/socialrole set`", value: "Require a role, such as Level 50, to use social actions like `!kiss` and `!hug`. Check `status` or clear with `remove|clear|off`.\n*(Manage Server)*" },
       { name: "`!role @user @role` • `/role`", value: "Add or remove a role from a member.\n*(Manage Roles)*" },
+      { name: "`!boosters`", value: "View your active XP boosts and when they expire." },
       { name: "`!nick @user <name|reset>` • `/nick`", value: "Change or reset a member nickname.\n*(Manage Nicknames)*" },
       { name: "`!announce #channel <message>` • `/announce`", value: "Send an announcement embed to a channel.\n*(Manage Server)*" },
       { name: "`!embed`", value: "Create named embeds with title, description, hex color, images, thumbnails, footer and fields; preview with `show` and post with `send`. Customize command-response embeds separately with `!embed override`; reset with `override-reset`.\n*(Manage Server)*" },
