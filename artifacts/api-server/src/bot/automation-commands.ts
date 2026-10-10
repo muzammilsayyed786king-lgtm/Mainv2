@@ -77,28 +77,20 @@ export async function handleAutoReactCommand(message: Message): Promise<void> {
   if (!channel) {
     await message.reply({
       content:
-        "❌ Mention a text channel. Usage: `!autoreact set #channel <emoji> [all|levelup]`, `!autoreact remove #channel`, or `!autoreact status #channel`.",
+        "❌ Mention a text channel. Usage: `!autoreact set #channel <emoji>`, `!autoreact remove #channel`, or `!autoreact status #channel`.",
       allowedMentions: { parse: [], repliedUser: false },
     });
     return;
   }
 
   if (action === "set") {
-    const [emojiText = "", triggerText] = textAfterChannelMention(message, channel).split(/\s+/);
-    const trigger = triggerText?.toLowerCase() ?? "all";
-    if (trigger !== "all" && trigger !== "levelup") {
-      await message.reply({
-        content: "❌ Choose `all` or `levelup` as the auto-react trigger.",
-        allowedMentions: { parse: [], repliedUser: false },
-      });
-      return;
-    }
+    const emojiText = textAfterChannelMention(message, channel);
     const match = /^<a?:[A-Za-z0-9_]{2,32}:(\d{17,20})>$/.exec(emojiText);
     const emoji = match ? message.guild.emojis.cache.get(match[1]!) : undefined;
     if (!emoji && !isSingleUnicodeEmoji(emojiText)) {
       await message.reply({
         content:
-          "❌ Use one Unicode emoji or a custom emoji from this server, for example `!autoreact set #chat 👍` or `!autoreact set #chat <:sparkle:123456789012345678> levelup`.",
+          "❌ Use one Unicode emoji or a custom emoji from this server, for example `!autoreact set #chat 👍` or `!autoreact set #chat <:sparkle:123456789012345678>`.",
         allowedMentions: { parse: [], repliedUser: false },
       });
       return;
@@ -116,11 +108,9 @@ export async function handleAutoReactCommand(message: Message): Promise<void> {
 
     try {
       const selectedEmoji = emoji?.toString() ?? emojiText;
-      await setChannelAutoReact(message.guild.id, channel.id, selectedEmoji, trigger);
+      await setChannelAutoReact(message.guild.id, channel.id, selectedEmoji);
       await message.reply({
-        content: trigger === "levelup"
-          ? `✅ I’ll react with ${selectedEmoji} to level-up announcements in ${channel}.`
-          : `✅ Auto-react is on in ${channel}. I’ll react to every new message with ${selectedEmoji}.`,
+        content: `✅ Auto-react is on in ${channel}. I’ll react to every new message with ${selectedEmoji}.`,
         allowedMentions: { parse: [], repliedUser: false },
       });
     } catch (error) {
@@ -148,8 +138,10 @@ export async function handleAutoReactCommand(message: Message): Promise<void> {
     try {
       const settings = await getChannelAutomationSettings(message.guild.id, channel.id);
       await message.reply({
-        content: settings?.autoReactEmoji
-          ? `✨ Auto-react is on in ${channel} with ${settings.autoReactEmoji.startsWith("levelup|") ? `${settings.autoReactEmoji.slice("levelup|".length)} on level-up announcements` : `${settings.autoReactEmoji} on all messages`}.`
+        content: settings?.autoReactEmoji && !settings.autoReactEmoji.includes("|")
+          ? `✨ Auto-react is on in ${channel} with ${settings.autoReactEmoji}.`
+          : settings?.autoReactEmoji
+            ? `ℹ️ The saved auto-react trigger is no longer supported in ${channel}. Set it again with !autoreact set #channel <emoji>.`
           : `ℹ️ Auto-react is off in ${channel}.`,
         allowedMentions: { parse: [], repliedUser: false },
       });
@@ -161,7 +153,7 @@ export async function handleAutoReactCommand(message: Message): Promise<void> {
 
   await message.reply({
     content:
-      "ℹ️ Usage: `!autoreact set #channel <emoji> [all|levelup]`, `!autoreact remove #channel`, or `!autoreact status #channel`.",
+      "ℹ️ Usage: `!autoreact set #channel <emoji>`, `!autoreact remove #channel`, or `!autoreact status #channel`.",
     allowedMentions: { parse: [], repliedUser: false },
   });
 }

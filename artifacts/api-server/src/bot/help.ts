@@ -75,7 +75,7 @@ function page3(): EmbedBuilder {
   return helpPage("⚙️ Server Controls")
     .addFields(
       { name: "`!noprefix @role` • `/noprefix`", value: "Let a role use commands without `!`; use `remove` to disable it.\n*(Manage Server)*" },
-      { name: "`!socialrole set @role` • `/socialrole set`", value: "Require a role, such as Level 50, to use social actions like `!kiss` and `!hug`. Check `status` or clear with `remove|clear|off`.\n*(Manage Server)*" },
+      { name: "`!socialrole set @role` • `/socialrole set`", value: "Require a server role to use social actions like `!kiss` and `!hug`. Check `status` or clear with `remove|clear|off`.\n*(Manage Server)*" },
       { name: "`!role @user @role` • `/role`", value: "Add or remove a role from a member.\n*(Manage Roles)*" },
       { name: "`!nick @user <name|reset>` • `/nick`", value: "Change or reset a member nickname.\n*(Manage Nicknames)*" },
       { name: "`!announce #channel <message>` • `/announce`", value: "Send an announcement embed to a channel.\n*(Manage Server)*" },
@@ -109,7 +109,7 @@ function pageAutomation(): EmbedBuilder {
   return helpPage("📡 Automation")
     .setDescription("Configure these features with **Manage Server** permission.")
     .addFields(
-      { name: "`!autoreact set #channel <emoji> [all|levelup]` • `/autoreact set`", value: "Choose whether an emoji reacts to every new message (`all`, the default) or only level-up announcements (`levelup`). Supports Unicode and server custom emojis." },
+      { name: "`!autoreact set #channel <emoji>` • `/autoreact set`", value: "React to every new message with one Unicode emoji or a custom emoji from this server." },
       { name: "`!autoreact status #channel` • `/autoreact status`", value: "Show the active reaction for a channel." },
       { name: "`!autoreact remove #channel` • `/autoreact remove`", value: "Turn off auto-react for a channel." },
       { name: "`!sticky set #channel <message>` • `/sticky set`", value: "Keep one branded message at the bottom of a channel. It moves after new messages." },
@@ -130,8 +130,7 @@ function page5(): EmbedBuilder {
       { name: "`!wbstop` / `!wordbomb stop` • `/wbstop`", value: "Stop the current Word Bomb game.\n*(Manage Server)*" },
       { name: "`!wbtop` • `/wbtop`", value: "Show the Word Bomb win leaderboard for this server." },
       { name: "✅ **Command notes**", value: "Slash commands appear server-by-server after the bot starts. Prefix commands continue to work as before.\n\nFor accurate online/offline presence counts, enable **Server Members Intent** and **Presence Intent** in the Discord Developer Portal." },
-      { name: "📈 **Server levels**", value: "Earn **15–25 XP** from chat (once per minute) and **10 XP** per minute in an active voice channel with at least two non-bot members. AFK and self-deafened voice sessions don't earn XP. Every **100 XP** grants a level; level-up embeds appear in the channel where you earned the XP." },
-      { name: "💳 **Credits**", value: "Check your balance with `!credit`. Earn **20 credits** when chat activity earns XP (once per minute), or **100 credits** for winning a 30-minute reaction drop. Spend credits on server roles with `!shop` and `!shop buy @role`." },
+      { name: "💳 **Credits**", value: "Check your balance with `!credit`. Earn **20 credits** from chat once per minute, or **100 credits** for winning a 30-minute reaction drop. Spend credits on server roles with `!shop` and `!shop buy @role`." },
       { name: "🦉 **Credit drops**", value: "A reaction drop appears every **30 minutes**. The first reaction wins **100 credits**. Server managers set the channel with `!creditdrop setup #channel`; change the interval with `!creditdrop interval 1h` (30m–24h). Check, pause, or resume with `!creditdrop status|pause|resume`." },
     )
     .setFooter({ text: HELP_FOOTER });

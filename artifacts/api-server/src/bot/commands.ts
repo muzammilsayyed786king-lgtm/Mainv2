@@ -38,9 +38,7 @@ import { handleJtcCommand, handleVcCommand } from "./joinToCreate";
 import { handleTicketCommand } from "./tickets";
 import { handleSocialRoleCommand } from "./socialRole";
 import { handleCreditCommand, handleRoleShopCommand } from "./roleShop";
-import {
-  awardChatXp,
-} from "./experience";
+import { awardChatCredits } from "./credits";
 import { handleCreditDropCommand } from "./crates";
 import { handleEmbedCommand } from "./embeds";
 import { logger } from "../lib/logger";
@@ -63,12 +61,7 @@ export async function handleMessage(
   if (!options.skipAutoModeration && await handleAutoModeration(message)) return;
 
   if (!content.startsWith("!")) {
-    void awardChatXp(message).catch((err: unknown) => {
-      logger.error(
-        { err, guildId: message.guild?.id, userId: message.author.id },
-        "Failed to award chat XP",
-      );
-    });
+    void awardChatCredits(message);
   }
 
   await handleAfk(message, content);

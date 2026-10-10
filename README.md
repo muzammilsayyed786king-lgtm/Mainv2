@@ -31,11 +31,9 @@ The bot needs the Manage Channels and Move Members permissions, and the Guild Vo
 
 The bot service must remain running continuously because Discord bots require a long-lived process.
 
-## Server XP and levels
+## Credits
 
-Members earn 15–25 random XP from chat, at most once per minute, and 10 XP per minute while in a voice channel with at least two active, non-bot members. AFK-channel and self/server-deafened voice sessions do not earn XP. Every 100 XP grants a level; progress is stored per server and user.
-
-Level-up announcements are sent in the channel where XP is earned.
+Members earn 20 credits from chat once per minute. Use `!credit` to check the server balance.
 
 Credit drops appear in the configured chat every 30 minutes. The first 🦉 reaction wins 100 credits to spend in `!shop`. Server managers configure the channel with `!creditdrop setup #channel`, then set the cadence with `!creditdrop interval 1h` (30 minutes to 24 hours). Use `!creditdrop status`, `!creditdrop pause`, and `!creditdrop resume` to manage drops.
 

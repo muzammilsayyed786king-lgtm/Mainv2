@@ -51,40 +51,15 @@ export async function setChannelAutoReact(
   guildId: string,
   channelId: string,
   emoji: string,
-  trigger: "all" | "levelup" = "all",
 ): Promise<void> {
-  const storedEmoji = trigger === "levelup" ? `levelup|${emoji}` : emoji;
   await db
     .insert(botChannelAutomationsTable)
-    .values({ guildId, channelId, autoReactEmoji: storedEmoji })
+    .values({ guildId, channelId, autoReactEmoji: emoji })
     .onConflictDoUpdate({
       target: [botChannelAutomationsTable.guildId, botChannelAutomationsTable.channelId],
-      set: { autoReactEmoji: storedEmoji, updatedAt: new Date() },
+      set: { autoReactEmoji: emoji, updatedAt: new Date() },
     });
   invalidateChannelSettings(guildId, channelId);
-}
-
-function parseAutoReact(value: string): { emoji: string; trigger: "all" | "levelup" } {
-  if (value.startsWith("levelup|")) {
-    return { emoji: value.slice("levelup|".length), trigger: "levelup" };
-  }
-  return { emoji: value, trigger: "all" };
-}
-
-export async function reactToLevelUpMessage(message: Message): Promise<void> {
-  if (!message.guild) return;
-  try {
-    const settings = await getChannelAutomationSettings(message.guild.id, message.channelId);
-    if (!settings?.autoReactEmoji) return;
-    const config = parseAutoReact(settings.autoReactEmoji);
-    if (config.trigger !== "levelup") return;
-    await message.react(config.emoji);
-  } catch (error) {
-    logger.warn(
-      { err: error, guildId: message.guildId, channelId: message.channelId, messageId: message.id },
-      "Auto-react on level-up message failed",
-    );
-  }
 }
 
 export async function removeChannelAutoReact(
@@ -326,9 +301,8 @@ export async function processUserMessageAutomations(
     );
     if (!settings) return;
 
-    if (settings.autoReactEmoji) {
-      const config = parseAutoReact(settings.autoReactEmoji);
-      if (config.trigger === "all") await message.react(config.emoji).catch((error: unknown) => {
+    if (settings.autoReactEmoji && !settings.autoReactEmoji.includes("|")) {
+      await message.react(settings.autoReactEmoji).catch((error: unknown) => {
         logger.warn(
           { err: error, guildId: message.guildId, channelId: message.channelId },
           "Auto-react failed",

@@ -109,7 +109,7 @@ const slashCommands = [
       sub
         .setName("set")
         .setDescription("Require a role for social commands.")
-        .addRoleOption((o) => o.setName("role").setDescription("Required role, such as Level 50").setRequired(true)),
+        .addRoleOption((o) => o.setName("role").setDescription("Role required to use social commands").setRequired(true)),
     )
     .addSubcommand((sub) =>
       sub.setName("status").setDescription("Show the current social-command role requirement."),
@@ -167,11 +167,7 @@ const slashCommands = [
         .setName("set")
         .setDescription("React to every message in a channel.")
         .addChannelOption((o) => o.setName("channel").setDescription("Text channel").addChannelTypes(ChannelType.GuildText, ChannelType.GuildAnnouncement).setRequired(true))
-        .addStringOption((o) => o.setName("emoji").setDescription("Emoji to react with").setRequired(true))
-        .addStringOption((o) => o.setName("trigger").setDescription("Which messages should receive the reaction").addChoices(
-          { name: "All messages", value: "all" },
-          { name: "Level-up announcements", value: "levelup" },
-        )),
+        .addStringOption((o) => o.setName("emoji").setDescription("Emoji to react with").setRequired(true)),
     )
     .addSubcommand((sub) =>
       sub
@@ -272,8 +268,7 @@ function automationCommandContent(
     interaction.options.getString("emoji") ??
     interaction.options.getString("message") ??
     "";
-  const trigger = command === "autoreact" ? interaction.options.getString("trigger") ?? "" : "";
-  return `!${command} ${action} ${channelText} ${value} ${trigger}`.trim();
+  return `!${command} ${action} ${channelText} ${value}`.trim();
 }
 
 function buildLegacyContent(interaction: ChatInputCommandInteraction): string {
