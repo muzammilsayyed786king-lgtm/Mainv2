@@ -109,7 +109,7 @@ function pageAutomation(): EmbedBuilder {
   return helpPage("📡 Automation")
     .setDescription("Configure these features with **Manage Server** permission.")
     .addFields(
-      { name: "`!autoreact set #channel <emoji>` • `/autoreact set`", value: "React to every new message with one Unicode emoji or a custom emoji from this server." },
+      { name: "`!autoreact set #channel <emoji> [trigger text]` • `/autoreact set`", value: "With no trigger text, react to every user message. Add a phrase to react only when a user or bot message contains it, e.g. `!autoreact set #chat 🎉 \"leveled up\"`. Matching ignores letter case." },
       { name: "`!autoreact status #channel` • `/autoreact status`", value: "Show the active reaction for a channel." },
       { name: "`!autoreact remove #channel` • `/autoreact remove`", value: "Turn off auto-react for a channel." },
       { name: "`!sticky set #channel <message>` • `/sticky set`", value: "Keep one branded message at the bottom of a channel. It moves after new messages." },
@@ -130,8 +130,8 @@ function page5(): EmbedBuilder {
       { name: "`!wbstop` / `!wordbomb stop` • `/wbstop`", value: "Stop the current Word Bomb game.\n*(Manage Server)*" },
       { name: "`!wbtop` • `/wbtop`", value: "Show the Word Bomb win leaderboard for this server." },
       { name: "✅ **Command notes**", value: "Slash commands appear server-by-server after the bot starts. Prefix commands continue to work as before.\n\nFor accurate online/offline presence counts, enable **Server Members Intent** and **Presence Intent** in the Discord Developer Portal." },
-      { name: "💳 **Credits**", value: "Check your balance with `!credit`. Earn **20 credits** from chat once per minute, or **100 credits** for winning a 30-minute reaction drop. Spend credits on server roles with `!shop` and `!shop buy @role`." },
-      { name: "🦉 **Credit drops**", value: "A reaction drop appears every **30 minutes**. The first reaction wins **100 credits**. Server managers set the channel with `!creditdrop setup #channel`; change the interval with `!creditdrop interval 1h` (30m–24h). Check, pause, or resume with `!creditdrop status|pause|resume`." },
+      { name: "💳 **Credits**", value: "Check your balance with `!credit`. Earn **20 credits** from chat once per minute, or win **38 Reputation** in a 30-minute reaction drop. Reputation is added to your credit balance; spend it on server roles with `!shop` and `!shop buy @role`." },
+      { name: "🦉 **Credit drops**", value: "An Epic reaction drop appears every **30 minutes**. The first 🌦️ reaction wins **38 Reputation**, added to the winner's credit balance. Server managers set the channel with `!creditdrop setup #channel`; change the interval with `!creditdrop interval 1h` (30m–24h). Check, pause, or resume with `!creditdrop status|pause|resume`." },
     )
     .setFooter({ text: HELP_FOOTER });
 }
