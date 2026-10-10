@@ -153,9 +153,7 @@ export async function handleCreditDropCommand(message: Message): Promise<void> {
       await db.update(botCrateSettingsTable)
         .set({
           intervalMinutes,
-          nextCrateAt: settings.activeMessageId
-            ? settings.nextCrateAt
-            : now + intervalMinutes * 60_000,
+          nextCrateAt: now + intervalMinutes * 60_000,
           updatedAt: new Date(now),
         })
         .where(eq(botCrateSettingsTable.guildId, guild.id));

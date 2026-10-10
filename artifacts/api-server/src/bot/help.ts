@@ -132,7 +132,7 @@ function page5(): EmbedBuilder {
       { name: "✅ **Command notes**", value: "Slash commands appear server-by-server after the bot starts. Prefix commands continue to work as before.\n\nFor accurate online/offline presence counts, enable **Server Members Intent** and **Presence Intent** in the Discord Developer Portal." },
       { name: "📈 **Server levels**", value: "Earn **15–25 XP** from chat (once per minute) and **10 XP** per minute in an active voice channel with at least two non-bot members. AFK and self-deafened voice sessions don't earn XP. Every **100 XP** grants a level; level-up embeds appear in the channel where you earned the XP." },
       { name: "💳 **Credits**", value: "Check your balance with `!credit`. Earn **20 credits** when chat activity earns XP (once per minute), or **100 credits** for winning a 30-minute reaction drop. Spend credits on server roles with `!shop` and `!shop buy @role`." },
-      { name: "🦉 **Credit drops**", value: "A reaction drop appears every **30 minutes**. The first reaction wins **100 credits**. Server managers set the channel with `!creditdrop setup #channel`; check, pause, or resume with `!creditdrop status|pause|resume`." },
+      { name: "🦉 **Credit drops**", value: "A reaction drop appears every **30 minutes**. The first reaction wins **100 credits**. Server managers set the channel with `!creditdrop setup #channel`; change the interval with `!creditdrop interval 1h` (30m–24h). Check, pause, or resume with `!creditdrop status|pause|resume`." },
     )
     .setFooter({ text: HELP_FOOTER });
 }
