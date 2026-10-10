@@ -41,9 +41,7 @@ import { handleRoleShopCommand } from "./roleShop";
 import {
   awardChatXp,
   handleBoostersCommand,
-  handleLevelProfileCommand,
 } from "./experience";
-import { handleVoteCommand } from "./voting";
 import { handleCreditDropCommand } from "./crates";
 import { handleEmbedCommand } from "./embeds";
 import { logger } from "../lib/logger";
@@ -183,13 +181,9 @@ export async function handleMessage(
   } else if (lower === "!steal" || lower.startsWith("!steal ")) {
     await handleSteal(message);
 
-  // ── Experience and voting ─────────────────────────────────────────────────
-  } else if (lower === "!lvl" || lower === "!level") {
-    await handleLevelProfileCommand(message);
+  // ── Experience ────────────────────────────────────────────────────────────
   } else if (lower === "!boosters") {
     await handleBoostersCommand(message);
-  } else if (lower === "!vote" || lower.startsWith("!vote ")) {
-    await handleVoteCommand(message);
 
   // ── Voice (Join to Create) ────────────────────────────────────────────────
   } else if (lower === "!voice" || lower.startsWith("!voice ")) {

@@ -1,9 +1,6 @@
 import {
   ActionRowBuilder,
-  ButtonBuilder,
-  ButtonStyle,
   ChannelType,
-  ComponentType,
   EmbedBuilder,
   PermissionFlagsBits,
   type Client,
@@ -12,7 +9,7 @@ import {
   type MessageCreateOptions,
   type VoiceState,
 } from "discord.js";
-import { and, desc, eq, gte, lte, sql } from "drizzle-orm";
+import { and, eq, gte, lte, sql } from "drizzle-orm";
 import {
   botExperiencePreferencesTable,
   botExperienceBoostsTable,
@@ -338,135 +335,6 @@ async function awardLevelRoles(member: GuildMember, result: AwardResult): Promis
   }
 }
 
-type LevelProfileSection = "progress" | "credits" | "boosters" | "leaderboard";
-
-function levelProfileComponents(
-  userId: string,
-  section: LevelProfileSection,
-  serverNotifications: boolean,
-  dmNotifications: boolean,
-) {
-  const firstRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
-    new ButtonBuilder().setCustomId(`lvl:${userId}:progress`).setLabel("Progress").setStyle(section === "progress" ? ButtonStyle.Primary : ButtonStyle.Secondary),
-    new ButtonBuilder().setCustomId(`lvl:${userId}:credits`).setLabel("Credits").setStyle(section === "credits" ? ButtonStyle.Primary : ButtonStyle.Secondary),
-    new ButtonBuilder().setCustomId(`lvl:${userId}:boosters`).setLabel("Boosters").setStyle(section === "boosters" ? ButtonStyle.Primary : ButtonStyle.Secondary),
-    new ButtonBuilder().setCustomId(`lvl:${userId}:leaderboard`).setLabel("Leaderboard").setStyle(section === "leaderboard" ? ButtonStyle.Primary : ButtonStyle.Secondary),
-  );
-  const secondRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
-    new ButtonBuilder()
-      .setCustomId(`lvl:${userId}:toggle-server`)
-      .setLabel(`Server notifications: ${serverNotifications ? "On" : "Off"}`)
-      .setStyle(serverNotifications ? ButtonStyle.Success : ButtonStyle.Secondary),
-    new ButtonBuilder()
-      .setCustomId(`lvl:${userId}:toggle-dm`)
-      .setLabel(`DM notifications: ${dmNotifications ? "On" : "Off"}`)
-      .setStyle(dmNotifications ? ButtonStyle.Success : ButtonStyle.Secondary),
-  );
-  return [firstRow, secondRow];
-}
-
-async function getLevelProfilePayload(
-  member: GuildMember,
-  section: LevelProfileSection,
-): Promise<{
-  embeds: EmbedBuilder[];
-  components: ReturnType<typeof levelProfileComponents>;
-}> {
-  const { guild, user } = member;
-  const now = Date.now();
-  const [profileRows, creditRows, activeBoosts, preferenceRows] = await Promise.all([
-    db.select().from(botExperienceTable).where(and(
-      eq(botExperienceTable.guildId, guild.id),
-      eq(botExperienceTable.userId, user.id),
-    )),
-    db.select({ coins: botMiningProfilesTable.coins }).from(botMiningProfilesTable).where(and(
-      eq(botMiningProfilesTable.guildId, guild.id),
-      eq(botMiningProfilesTable.userId, user.id),
-    )),
-    db.select().from(botExperienceBoostsTable).where(and(
-      eq(botExperienceBoostsTable.guildId, guild.id),
-      eq(botExperienceBoostsTable.userId, user.id),
-      gte(botExperienceBoostsTable.expiresAt, now + 1),
-    )),
-    db.select().from(botExperiencePreferencesTable).where(and(
-      eq(botExperiencePreferencesTable.guildId, guild.id),
-      eq(botExperiencePreferencesTable.userId, user.id),
-    )),
-  ]);
-  const profile = profileRows[0];
-  const totalXp = profile?.totalXp ?? 0;
-  const level = profile?.level ?? 1;
-  const progress = totalXp % XP_PER_LEVEL;
-  const nextLevelXp = XP_PER_LEVEL - progress;
-  const totalBoostPercent = activeBoosts.reduce((total, boost) => total + boost.boostPercent, 0);
-  const activeBoost = activeBoosts.length > 0;
-  const preferences = preferenceRows[0];
-  const serverNotifications = preferences?.serverNotifications ?? true;
-  const dmNotifications = preferences?.dmNotifications ?? false;
-  const embed = new EmbedBuilder()
-    .setColor(premiumColors.brand)
-    .setAuthor({ name: `${member.displayName}'s Level Profile`, iconURL: member.displayAvatarURL() })
-    .setTimestamp();
-
-  if (section === "progress") {
-    const milestoneRoles = await db
-      .select()
-      .from(botLevelRolesTable)
-      .where(eq(botLevelRolesTable.guildId, guild.id))
-      .orderBy(botLevelRolesTable.level);
-    const meterFilled = Math.floor((progress / XP_PER_LEVEL) * 10);
-    const meter = `${"▰".repeat(meterFilled)}${"▱".repeat(10 - meterFilled)}`;
-    const milestoneLines = milestoneRoles.slice(0, 10).map(({ level: milestone, roleId }) =>
-      `${level >= milestone ? "✅" : "🔒"} **Level ${milestone}** | <@&${roleId}>`,
-    );
-    embed
-      .setTitle(`Level ${level}${activeBoost ? ` (${((100 + totalBoostPercent) / 100).toFixed(2)}x XP)` : ""}`)
-      .setDescription(
-        `**XP:** ${totalXp.toLocaleString()} total\n` +
-        `**XP for next level:** ${nextLevelXp.toLocaleString()}\n` +
-        `**Progress:** ${progress}/${XP_PER_LEVEL} XP\n${meter}\n\n` +
-        `**Milestones**\n${milestoneLines.length ? milestoneLines.join("\n") : "No role milestones configured yet."}`,
-      )
-      .setFooter({ text: "Keep active in chat and voice to gain XP and reach milestones." });
-  } else if (section === "credits") {
-    embed
-      .setTitle("Credits")
-      .setDescription(`You have **${(creditRows[0]?.coins ?? 0).toLocaleString()}** credits in this server.`);
-  } else if (section === "boosters") {
-    embed
-      .setTitle("XP Boosters")
-      .setDescription(
-        activeBoost
-          ? `**Activated**\n${activeBoosts.map((boost) =>
-              `- **${boost.boostPercent}%** XP Boost • ${boost.source === "vote" ? "Vote reward" : "Mysterious Crate"} • Active until <t:${Math.floor(boost.expiresAt / 1000)}:R>`,
-            ).join("\n")}`
-          : "**Activated**\nNone\n\nVote on Top.gg or Discadia to activate a 20% XP boost for 12 hours.",
-      );
-  } else {
-    const leaders = await db
-      .select({ userId: botExperienceTable.userId, totalXp: botExperienceTable.totalXp, level: botExperienceTable.level })
-      .from(botExperienceTable)
-      .where(eq(botExperienceTable.guildId, guild.id))
-      .orderBy(desc(botExperienceTable.totalXp))
-      .limit(10);
-    embed
-      .setTitle("Server XP Leaderboard")
-      .setDescription(
-        leaders.length
-          ? leaders.map((entry, index) =>
-              `**${index + 1}.** <@${entry.userId}> — Level **${entry.level}** · ${entry.totalXp.toLocaleString()} XP`,
-            ).join("\n")
-          : "No one has earned XP yet.",
-      )
-      .setFooter({ text: "Leaderboard shows the top 10 members in this server." });
-  }
-
-  return {
-    embeds: [embed],
-    components: levelProfileComponents(user.id, section, serverNotifications, dmNotifications),
-  };
-}
-
 export async function handleBoostersCommand(message: Message): Promise<void> {
   const guild = message.guild;
   if (!guild) return;
@@ -496,90 +364,6 @@ export async function handleBoostersCommand(message: Message): Promise<void> {
     );
     await message.reply("❌ Could not load your boosters. Please try again.");
   }
-}
-
-export async function handleLevelProfileCommand(message: Message): Promise<void> {
-  if (!message.guild) return;
-  try {
-    const member = message.member ?? await message.guild.members.fetch(message.author.id);
-    const payload = await getLevelProfilePayload(member, "progress");
-    const panel = await message.reply(payload);
-    const collector = panel.createMessageComponentCollector({
-      componentType: ComponentType.Button,
-      time: 10 * 60_000,
-    });
-
-    collector.on("collect", async (interaction) => {
-      const [customId, ownerId, action] = interaction.customId.split(":");
-      if (customId !== "lvl" || ownerId !== message.author.id) {
-        await interaction.reply({
-          content: "Only the person who opened this level panel can use it.",
-          ephemeral: true,
-        });
-        return;
-      }
-      try {
-        if (action === "toggle-server" || action === "toggle-dm") {
-          await toggleLevelNotification(message.guild!.id, message.author.id, action);
-        }
-        const section: LevelProfileSection =
-          action === "credits" || action === "boosters" || action === "leaderboard"
-            ? action
-            : "progress";
-        await interaction.update(await getLevelProfilePayload(member, section));
-      } catch (error) {
-        logger.error(
-          { err: error, guildId: message.guild?.id, userId: message.author.id, action },
-          "Failed to update level profile panel",
-        );
-        if (!interaction.replied && !interaction.deferred) {
-          await interaction.reply({ content: "Could not load that level panel. Please try again.", ephemeral: true });
-        }
-      }
-    });
-    collector.on("end", () => {
-      void panel.edit({ components: [] }).catch((error: unknown) => {
-        logger.warn({ err: error, guildId: message.guild?.id }, "Could not close expired level panel");
-      });
-    });
-  } catch (error) {
-    logger.error({ err: error, guildId: message.guild.id, userId: message.author.id }, "Failed to load level profile");
-    await message.reply("❌ Could not load your level profile. Please try again.");
-  }
-}
-
-async function toggleLevelNotification(
-  guildId: string,
-  userId: string,
-  kind: "toggle-server" | "toggle-dm",
-): Promise<void> {
-  await db.transaction(async (tx) => {
-    await tx
-      .insert(botExperiencePreferencesTable)
-      .values({ guildId, userId })
-      .onConflictDoNothing();
-    const [preference] = await tx
-      .select()
-      .from(botExperiencePreferencesTable)
-      .where(and(
-        eq(botExperiencePreferencesTable.guildId, guildId),
-        eq(botExperiencePreferencesTable.userId, userId),
-      ))
-      .for("update");
-    if (!preference) throw new Error("Could not load level notification preferences");
-    await tx
-      .update(botExperiencePreferencesTable)
-      .set({
-        ...(kind === "toggle-server"
-          ? { serverNotifications: !preference.serverNotifications }
-          : { dmNotifications: !preference.dmNotifications }),
-        updatedAt: new Date(),
-      })
-      .where(and(
-        eq(botExperiencePreferencesTable.guildId, guildId),
-        eq(botExperiencePreferencesTable.userId, userId),
-      ));
-  });
 }
 
 export async function awardChatXp(message: Message): Promise<void> {

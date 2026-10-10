@@ -35,9 +35,7 @@ The bot service must remain running continuously because Discord bots require a 
 
 Members earn 15–25 random XP from chat, at most once per minute, and 10 XP per minute while in a voice channel with at least two active, non-bot members. AFK-channel and self/server-deafened voice sessions do not earn XP. Every 100 XP grants a level; progress is stored per server and user.
 
-Level-up announcements are sent in the channel where XP is earned. Members can view their progress, credits, active boosters, and the server XP leaderboard with `!lvl`. The profile buttons also toggle that member's server and DM level-up notifications.
-
-Vote rewards can be configured for one server with `!vote setup #channel <top.gg-vote-url> <discadia-vote-url>`. Each accepted vote from a member of that server adds a 20% XP boost for 12 hours, applicable to chat and voice XP in the configured server. Re-votes from the same provider are accepted at most once per 12 hours; votes on both sites can extend the active boost. Set strong, private `TOPGG_WEBHOOK_AUTH` and `DISCADIA_WEBHOOK_AUTH` secrets on the bot host, then configure `https://<your-service-domain>/api/webhooks/topgg` and `https://<your-service-domain>/api/webhooks/discadia` with the matching authorization header in each provider's webhook dashboard. On Railway, use the service's public domain for `<your-service-domain>`. Use `!vote status` and `!vote disable` to inspect or turn off vote rewards.
+Level-up announcements are sent in the channel where XP is earned.
 
 Credit drops appear in the configured chat every 30 minutes. The first 🦉 reaction wins 100 credits to spend in `!shop`. Server managers configure the channel with `!creditdrop setup #channel`; use `!creditdrop status`, `!creditdrop pause`, and `!creditdrop resume` to manage drops.
 

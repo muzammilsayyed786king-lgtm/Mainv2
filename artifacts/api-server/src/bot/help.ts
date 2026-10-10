@@ -77,8 +77,6 @@ function page3(): EmbedBuilder {
       { name: "`!noprefix @role` • `/noprefix`", value: "Let a role use commands without `!`; use `remove` to disable it.\n*(Manage Server)*" },
       { name: "`!socialrole set @role` • `/socialrole set`", value: "Require a role, such as Level 50, to use social actions like `!kiss` and `!hug`. Check `status` or clear with `remove|clear|off`.\n*(Manage Server)*" },
       { name: "`!role @user @role` • `/role`", value: "Add or remove a role from a member.\n*(Manage Roles)*" },
-      { name: "`!lvl`", value: "Open your level profile with progress, credits, active boosters, and the server leaderboard. Buttons let you toggle server and DM level-up notifications." },
-      { name: "`!vote setup #channel <top.gg-url> <discadia-url>`", value: "Configure the vote reward channel and links. Top.gg and Discadia webhooks grant a 20% XP boost for 12 hours in the configured server. Use `!vote status` or `!vote disable`.\n*(Manage Server; webhook auth secrets must be configured on the bot host)*" },
       { name: "`!nick @user <name|reset>` • `/nick`", value: "Change or reset a member nickname.\n*(Manage Nicknames)*" },
       { name: "`!announce #channel <message>` • `/announce`", value: "Send an announcement embed to a channel.\n*(Manage Server)*" },
       { name: "`!embed`", value: "Create named embeds with title, description, hex color, images, thumbnails, footer and fields; preview with `show` and post with `send`. Customize command-response embeds separately with `!embed override`; reset with `override-reset`.\n*(Manage Server)*" },

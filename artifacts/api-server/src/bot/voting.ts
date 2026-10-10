@@ -3,11 +3,8 @@ import {
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle,
-  ChannelType,
   EmbedBuilder,
-  PermissionFlagsBits,
   type Client,
-  type Message,
 } from "discord.js";
 import { and, eq } from "drizzle-orm";
 import type { IncomingMessage, ServerResponse } from "node:http";
@@ -90,123 +87,6 @@ async function configuredVoteServer(): Promise<typeof botVoteSettingsTable.$infe
     throw new Error("More than one server has vote rewards configured");
   }
   return settings[0] ?? null;
-}
-
-export async function handleVoteCommand(message: Message): Promise<void> {
-  const guild = message.guild;
-  if (!guild) return;
-  const member =
-    message.member ?? (await guild.members.fetch(message.author.id).catch(() => null));
-  if (!member?.permissions.has(PermissionFlagsBits.ManageGuild)) {
-    await message.reply("❌ You need **Manage Server** permission to configure vote rewards.");
-    return;
-  }
-
-  const [, action = "status"] = message.content.trim().split(/\s+/);
-  if (action.toLowerCase() === "status") {
-    try {
-      const config = await db
-        .select()
-        .from(botVoteSettingsTable)
-        .where(eq(botVoteSettingsTable.guildId, guild.id));
-      const current = config[0];
-      await message.reply(
-        current
-          ? `✅ Vote rewards are enabled in <#${current.channelId}>.\nTop.gg and Discadia vote links are configured. Set \`TOPGG_WEBHOOK_AUTH\` and \`DISCADIA_WEBHOOK_AUTH\` on the bot host.`
-          : "ℹ️ Vote rewards are not configured. Use `!vote setup #channel <top.gg-vote-url> <discadia-vote-url>`.",
-      );
-    } catch (error) {
-      logger.error({ err: error, guildId: guild.id }, "Failed to load vote settings");
-      await message.reply("❌ Could not load vote settings. Please try again.");
-    }
-    return;
-  }
-
-  if (action.toLowerCase() === "disable") {
-    try {
-      await db.delete(botVoteSettingsTable).where(eq(botVoteSettingsTable.guildId, guild.id));
-      await message.reply("✅ Vote rewards are disabled for this server.");
-    } catch (error) {
-      logger.error({ err: error, guildId: guild.id }, "Failed to disable vote rewards");
-      await message.reply("❌ Could not disable vote rewards. Please try again.");
-    }
-    return;
-  }
-
-  if (action.toLowerCase() !== "setup") {
-    await message.reply("Usage: `!vote setup #channel <top.gg-vote-url> <discadia-vote-url>`, `!vote status`, or `!vote disable`.");
-    return;
-  }
-
-  const channel = message.mentions.channels.first();
-  if (
-    !channel ||
-    (channel.type !== ChannelType.GuildText && channel.type !== ChannelType.GuildAnnouncement)
-  ) {
-    await message.reply("❌ Mention a server text or announcement channel: `!vote setup #channel <top.gg-vote-url> <discadia-vote-url>`.");
-    return;
-  }
-  const mention = `<#${channel.id}>`;
-  const mentionIndex = message.content.indexOf(mention);
-  const urls = (mentionIndex < 0 ? "" : message.content.slice(mentionIndex + mention.length))
-    .trim()
-    .split(/\s+/);
-  if (urls.length !== 2 || !isVoteUrl(urls[0], "topgg") || !isVoteUrl(urls[1], "discadia")) {
-    await message.reply("❌ Provide HTTPS vote links from top.gg and discadia.com, in that order.");
-    return;
-  }
-
-  try {
-    const existing = await configuredVoteServer();
-    if (existing && existing.guildId !== guild.id) {
-      await message.reply(
-        `❌ Vote rewards are limited to one configured server. They are already set up in <#${existing.channelId}>.`,
-      );
-      return;
-    }
-    await db
-      .insert(botVoteSettingsTable)
-      .values({
-        guildId: guild.id,
-        channelId: channel.id,
-        topggUrl: urls[0]!,
-        discadiaUrl: urls[1]!,
-      })
-      .onConflictDoUpdate({
-        target: botVoteSettingsTable.guildId,
-        set: {
-          channelId: channel.id,
-          topggUrl: urls[0]!,
-          discadiaUrl: urls[1]!,
-          updatedAt: new Date(),
-        },
-      });
-    await message.reply({
-      content:
-        `✅ Vote rewards are configured in ${channel}.\nAdd these endpoints in each voting site's webhook settings:\n` +
-        `Top.gg: \`https://${process.env["RAILWAY_PUBLIC_DOMAIN"] ?? "<your-service-domain>"}/api/webhooks/topgg\` with auth matching \`TOPGG_WEBHOOK_AUTH\`.\n` +
-        `Discadia: \`https://${process.env["RAILWAY_PUBLIC_DOMAIN"] ?? "<your-service-domain>"}/api/webhooks/discadia\` with auth matching \`DISCADIA_WEBHOOK_AUTH\`.\n` +
-        "Each valid vote grants a 20% XP boost for 12 hours in this server.",
-      allowedMentions: { parse: [] },
-    });
-  } catch (error) {
-    logger.error({ err: error, guildId: guild.id }, "Failed to save vote settings");
-    await message.reply("❌ Could not configure vote rewards. Please try again.");
-  }
-}
-
-function isVoteUrl(value: string | undefined, provider: VoteProvider): value is string {
-  if (!value) return false;
-  try {
-    const url = new URL(value);
-    if (url.protocol !== "https:") return false;
-    const hostname = url.hostname.toLowerCase().replace(/^www\./, "");
-    return provider === "topgg"
-      ? hostname === "top.gg" || hostname.endsWith(".top.gg")
-      : hostname === "discadia.com" || hostname.endsWith(".discadia.com");
-  } catch {
-    return false;
-  }
 }
 
 async function rewardVote(
