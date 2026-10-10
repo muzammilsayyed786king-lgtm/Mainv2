@@ -37,7 +37,7 @@ import { withPremiumReplies } from "./presentation";
 import { handleJtcCommand, handleVcCommand } from "./joinToCreate";
 import { handleTicketCommand } from "./tickets";
 import { handleSocialRoleCommand } from "./socialRole";
-import { handleRoleShopCommand } from "./roleShop";
+import { handleCreditCommand, handleRoleShopCommand } from "./roleShop";
 import {
   awardChatXp,
   handleBoostersCommand,
@@ -173,6 +173,8 @@ export async function handleMessage(
     await handleWordbombStop(message);
   } else if (lower === "!wbtop") {
     await handleWbTop(message);
+  } else if (lower === "!credit") {
+    await handleCreditCommand(message);
   } else if (lower === "!shop" || lower.startsWith("!shop ")) {
     const args = content.split(/\s+/).slice(1);
     await handleRoleShopCommand(message, args);
