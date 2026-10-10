@@ -337,37 +337,6 @@ async function awardLevelRoles(member: GuildMember, result: AwardResult): Promis
   }
 }
 
-export async function handleBoostersCommand(message: Message): Promise<void> {
-  const guild = message.guild;
-  if (!guild) return;
-  try {
-    const now = Date.now();
-    const activeBoosts = await db.select().from(botExperienceBoostsTable).where(and(
-      eq(botExperienceBoostsTable.guildId, guild.id),
-      eq(botExperienceBoostsTable.userId, message.author.id),
-      gte(botExperienceBoostsTable.expiresAt, now + 1),
-    ));
-    const embed = new EmbedBuilder()
-      .setColor(premiumColors.brand)
-      .setTitle("XP Boosters")
-      .setDescription(
-        activeBoosts.length
-          ? `**Activated**\n${activeBoosts.map((boost) =>
-              `- **${boost.boostPercent}%** XP Boost • ${boost.source === "vote" ? "Vote reward" : "Mysterious Crate"} • Active until <t:${Math.floor(boost.expiresAt / 1000)}:R>`,
-            ).join("\n")}`
-          : "**Activated**\nNone\n\nVote for the server to activate an XP boost.",
-      )
-      .setFooter({ text: "Active boosts stack and apply to chat and voice XP in this server." });
-    await message.reply({ embeds: [embed] });
-  } catch (error) {
-    logger.error(
-      { err: error, guildId: guild.id, userId: message.author.id },
-      "Failed to load XP boosters",
-    );
-    await message.reply("❌ Could not load your boosters. Please try again.");
-  }
-}
-
 export async function awardChatXp(message: Message): Promise<void> {
   if (
     !message.guild ||

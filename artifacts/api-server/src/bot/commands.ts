@@ -40,7 +40,6 @@ import { handleSocialRoleCommand } from "./socialRole";
 import { handleCreditCommand, handleRoleShopCommand } from "./roleShop";
 import {
   awardChatXp,
-  handleBoostersCommand,
 } from "./experience";
 import { handleCreditDropCommand } from "./crates";
 import { handleEmbedCommand } from "./embeds";
@@ -182,10 +181,6 @@ export async function handleMessage(
     await handleShip(message);
   } else if (lower === "!steal" || lower.startsWith("!steal ")) {
     await handleSteal(message);
-
-  // ── Experience ────────────────────────────────────────────────────────────
-  } else if (lower === "!boosters") {
-    await handleBoostersCommand(message);
 
   // ── Voice (Join to Create) ────────────────────────────────────────────────
   } else if (lower === "!voice" || lower.startsWith("!voice ")) {
